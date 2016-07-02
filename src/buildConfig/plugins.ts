@@ -18,127 +18,140 @@ const uglifyDefaults =
 
 const extractTextDefaults = {allChunks:true}
 
-export function getPluginsPrep(o:WPACK.OPTS,extensions:string[]){
+export function getPluginsPrep
+	( o:WPACK.CONFIG
+	, extensions:string[]
+	)
+	{
 
-	const 
-		{ isProd
-		, isServer
-		, isDev
-		, isClient
-		, isDevServer
-		, doCopyFiles
-		, doCompileStyles
-		} = o
+		const 
+			{ isProd
+			, isServer
+			, isDev
+			, isClient
+			, isDevServer
+			, doCopyFiles
+			, doCompileStyles
+			} = o
 
-	const USES_TYPESCRIPT = extensions.indexOf('ts')>=0;
+		const USES_TYPESCRIPT = extensions.indexOf('ts')>=0;
 
-	const copyConfig = doCopyFiles &&
-		{ from: o.copyFiles.from
-		, to:   o.copyFiles.to
-		}; 
+		const copyConfig = doCopyFiles &&
+			{ from: o.copyFiles.from
+			, to:   o.copyFiles.to
+			}; 
 
-	const uglify = extend(true,{},uglifyDefaults,o.uglify);
-	const extractText = extend(true,{},extractTextDefaults,o.extractText);
+		const uglify = extend(true,{},uglifyDefaults,o.uglify);
+		const extractText = extend(true,{},extractTextDefaults,o.extractText);
 
-	return (
-		{ isProd
-		, isDevServer
-		, isServer
-		, isDev
-		, isClient
-		, doCompileStyles
-		, USES_TYPESCRIPT
-		, extractText
-		, doCopyFiles
-		, copyConfig
-		}
-	);
-}
+		return (
+			{ isProd
+			, isDevServer
+			, isServer
+			, isDev
+			, isClient
+			, doCompileStyles
+			, USES_TYPESCRIPT
+			, extractText
+			, doCopyFiles
+			, copyConfig
+			}
+		);
+	}
 
 
-export function buildPluginsRaw(requires:any, o:WPACK.OPTS,extensions:string[]){
-	const 
-		{ isProd
-		, isDevServer
-		, isServer
-		, isDev
-		, isClient
-		, doCompileStyles
-		, USES_TYPESCRIPT
-		, extractText
-		, doCopyFiles
-		, copyConfig
-		} = getPluginsPrep(o,extensions);
+export function buildPluginsRaw
+	( requires:any
+	, o:WPACK.CONFIG
+	, extensions:string[]
+	):string
+	{
+		const 
+			{ isProd
+			, isDevServer
+			, isServer
+			, isDev
+			, isClient
+			, doCompileStyles
+			, USES_TYPESCRIPT
+			, extractText
+			, doCopyFiles
+			, copyConfig
+			} = getPluginsPrep(o,extensions);
 
-	addRequires(requires,'webpack','webpack');
+		addRequires(requires,'webpack','webpack');
 
-	const str = '[\n'+
-		[ `\tnew webpack.DefinePlugin(${JSON.stringify(o.globals,null,'\t\t\t').replace(/\}$/,'\t}')})`
-		, isProd && 
-			'new webpack.optimize.DedupePlugin()'
-		, isProd && 
-			'new webpack.optimize.OccurenceOrderPlugin(true)'
-		, isDevServer && 
-			'new webpack.NoErrorsPlugin()'
-		, isDevServer && 
-			'new webpack.HotModuleReplacementPlugin()'
-		, isServer && isDev && 
-			`new webpack.BannerPlugin( 'require("source-map-support").install();', { raw: true, entryOnly: false })`
-		, isClient && isProd && 
-			`new webpack.optimize.UglifyJsPlugin()`
-		, doCompileStyles && addRequires(requires,'extract-text-webpack-plugins','ExtractTextPlugin') &&
-			`new ExtractTextPlugin(${JSON.stringify(o.stylesDestination)},${JSON.stringify(extractText,null,'\t\t\t')})`
-		, doCopyFiles && addRequires(requires,'copy-webpack-plugin','CopyWebpackPlugin') &&
-			`new CopyWebpackPlugin([ JSON.stringify(copyConfig) ])`
-		, USES_TYPESCRIPT && addRequires(requires,'awesome-typescript-loader','AwesomeTSLoader') &&
-			`new AwesomeTSLoader.ForkCheckerPlugin()`
-		].filter(Boolean).join(',\n\t')+'\n]';
+		const str = '[\n'+
+			[ `\tnew webpack.DefinePlugin(${JSON.stringify(o.globals,null,'\t\t\t').replace(/\}$/,'\t}')})`
+			, isProd && 
+				'new webpack.optimize.DedupePlugin()'
+			, isProd && 
+				'new webpack.optimize.OccurenceOrderPlugin(true)'
+			, isDevServer && 
+				'new webpack.NoErrorsPlugin()'
+			, isDevServer && 
+				'new webpack.HotModuleReplacementPlugin()'
+			, isServer && isDev && 
+				`new webpack.BannerPlugin( 'require("source-map-support").install();', { raw: true, entryOnly: false })`
+			, isClient && isProd && 
+				`new webpack.optimize.UglifyJsPlugin()`
+			, doCompileStyles && addRequires(requires,'extract-text-webpack-plugins','ExtractTextPlugin') &&
+				`new ExtractTextPlugin(${JSON.stringify(o.stylesDestination)},${JSON.stringify(extractText,null,'\t\t\t')})`
+			, doCopyFiles && addRequires(requires,'copy-webpack-plugin','CopyWebpackPlugin') &&
+				`new CopyWebpackPlugin([ JSON.stringify(copyConfig) ])`
+			, USES_TYPESCRIPT && addRequires(requires,'awesome-typescript-loader','AwesomeTSLoader') &&
+				`new AwesomeTSLoader.ForkCheckerPlugin()`
+			].filter(Boolean).join(',\n\t')+'\n]';
 
-	return str;
+		return str;
 
-}
+	}
 
-export default function buildPlugins(o:WPACK.OPTS,extensions:string[]){
+export default function buildPlugins
+	( o:WPACK.CONFIG
+	, extensions:string[]
+	):WEBPACK.Plugin[]
+	{
 
-	const 
-		{ isProd
-		, isDevServer
-		, isServer
-		, isDev
-		, isClient
-		, doCompileStyles
-		, USES_TYPESCRIPT
-		, extractText
-		, doCopyFiles
-		, copyConfig
-		} = getPluginsPrep(o,extensions);
+		const 
+			{ isProd
+			, isDevServer
+			, isServer
+			, isDev
+			, isClient
+			, doCompileStyles
+			, USES_TYPESCRIPT
+			, extractText
+			, doCopyFiles
+			, copyConfig
+			} = getPluginsPrep(o,extensions);
 
-	return (
-		[ new webpack.DefinePlugin(o.globals)
-		, isProd && 
-			new webpack.optimize.DedupePlugin()
-		, isProd && 
-			new webpack.optimize.OccurenceOrderPlugin(true)
-		, isDevServer && 
-			new webpack.NoErrorsPlugin()
-		, isDevServer && 
-			new webpack.HotModuleReplacementPlugin()
+		return (
+			[ new webpack.DefinePlugin(o.globals)
+			, isProd && 
+				new webpack.optimize.DedupePlugin()
+			, isProd && 
+				new webpack.optimize.OccurenceOrderPlugin(true)
+			, isDevServer && 
+				new webpack.NoErrorsPlugin()
+			, isDevServer && 
+				new webpack.HotModuleReplacementPlugin()
 
-		, isServer && isDev && 
-			new webpack.BannerPlugin
-				( 'require("source-map-support").install();'
-				, { raw: true, entryOnly: false }
-				)
-		, isClient && isProd && 
-			new webpack.optimize.UglifyJsPlugin()
-		, doCompileStyles &&
-			new ExtractTextPlugin(o.stylesDestination,extractText)
-		, doCopyFiles && 
-			new CopyWebpackPlugin
-				([ copyConfig ])
-		, USES_TYPESCRIPT && 
-			new ForkCheckerPlugin()
-		].filter(Boolean)
-	);
-	
-}
+			, isServer && isDev && 
+				new webpack.BannerPlugin
+					( 'require("source-map-support").install();'
+					, { raw: true, entryOnly: false }
+					)
+			, isClient && isProd && 
+				new webpack.optimize.UglifyJsPlugin()
+			, doCompileStyles &&
+				new ExtractTextPlugin(o.stylesDestination,extractText)
+			, doCopyFiles && 
+				new CopyWebpackPlugin
+					([ copyConfig ])
+			, USES_TYPESCRIPT && 
+				new ForkCheckerPlugin()
+			].filter(Boolean)
+		);
+		
+	}

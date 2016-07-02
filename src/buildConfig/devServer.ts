@@ -11,6 +11,7 @@ const defaults =
 		}
 	, stats:
 		{ colors: true
+		, reasons: true
 		}
 	, watchOptions:
 		{ 
@@ -21,15 +22,20 @@ const defaults =
 		}
 	}
 
-export default function buildDevServer(contentBase:string,port:number,conf:any){
-	return makeDevServerOptions
-		( extend
-			( true
-			, { contentBase, port }
-			, conf
-			)
-		);
-}
+export default function buildDevServer
+	( contentBase:string
+	, port:number
+	, conf:any
+	):WEBPACK.DevServer
+	{
+		return makeDevServerOptions
+			( extend
+				( true
+				, { contentBase, port }
+				, conf
+				)
+			);
+	}
 
 export function makeDevServerOptions(options?:any){
 	if(!options)

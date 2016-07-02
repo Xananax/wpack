@@ -1,38 +1,41 @@
 
-export default function buildEntry(o:WPACK.OPTS){
+export default function buildEntry
+	( o:WPACK.CONFIG
+	):WEBPACK.EntryObject
+	{
 
-	const 
-		{ isProd
-		, isDev
-		, isServer
-		, isClient
-		, react
-		, bundleName
-		, sourceFile
-		, hasVendors
-		} = o;
-
-	const includeHot = isDev;
-	const hot = isServer ? 
-		'webpack/hot/poll?1000':  
-		`webpack-hot-middleware/client?path=${o.hot_url}/__webpack_hmr`
-	;
-
-	const vendor = hasVendors &&
-		{ vendor:
-			[ 'react'
-			, 'redux'
-			, 'react-redux'
-			, ...o.vendor
-			].filter(Boolean)
-		}
-
-	const mainFile = 
-		{ [bundleName]:
-			[ hot 
+		const 
+			{ isProd
+			, isDev
+			, isServer
+			, isClient
+			, react
+			, bundleName
 			, sourceFile
-			].filter(Boolean)
-		}
+			, hasVendors
+			} = o;
 
-	return Object.assign(mainFile,vendor);
-}
+		const includeHot = isDev;
+		const hot = isServer ? 
+			'webpack/hot/poll?1000':  
+			`webpack-hot-middleware/client?path=${o.hot_url}/__webpack_hmr`
+		;
+
+		const vendor = hasVendors &&
+			{ vendor:
+				[ 'react'
+				, 'redux'
+				, 'react-redux'
+				, ...o.vendor
+				].filter(Boolean)
+			} as WEBPACK.EntryObject
+
+		const mainFile = 
+			{ [bundleName]:
+				[ hot 
+				, sourceFile
+				].filter(Boolean)
+			}
+
+		return Object.assign(mainFile,vendor);
+	}

@@ -1,9 +1,9 @@
 
 const calling_dir = process.cwd();
 
-const defaultOpts = 
+const defaultOpts:WPACK.OPTIONS = 
 	{ hostname:'hostname'
-	, hot_port:80080
+	, hotPort:80080
 	, isProd:false
 	, isServer:false
 	, outputContext:calling_dir
@@ -17,8 +17,8 @@ const defaultOpts =
 	, stylesDestination:'css'
 	, bundleName:'bundle'
 	, sourceFile:'index.js'
-	, copy_from:''
-	, copy_to:''
+	, copyFrom:''
+	, copyTo:''
 	}
 
 

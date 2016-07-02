@@ -17,13 +17,16 @@ export function autoPrefixerOpts(){
 	)
 }
 
-export default function buildPostcss(types:WPACK.LOADER_TYPE[]){
+export default function buildPostcss
+	( types:WPACK.LOADER_TYPE[]
+	):WEBPACK.PostCSS
+	{
 
-	const usesCSS = doesUseCSS(types);
+		const usesCSS = doesUseCSS(types);
 
-	if(!usesCSS){return;}
-	return ()=>
-		[ require('autoprefixer')(autoPrefixerOpts())
-		]
+		if(!usesCSS){return;}
+		return ()=>
+			[ require('autoprefixer')(autoPrefixerOpts())
+			]
 
-}
+	}

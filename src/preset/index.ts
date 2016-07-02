@@ -1,38 +1,30 @@
-import config from './config';
+import config_main from './config';
+import client_main from './client';
 import client_dev from './client.dev';
 import client_prod from './client.prod';
+import server_main from './server';
 import server_dev from './server.dev';
 import server_prod from './server.prod';
-import * as extend from 'extend';
+
+const client:WPACK_INTERNAL.PresetForType = client_main as WPACK_INTERNAL.PresetForType;
+client.prod = client_prod;
+client.dev = client_dev;
+
+const server:WPACK_INTERNAL.PresetForType = server_main as WPACK_INTERNAL.PresetForType;
+server.prod = server_prod;
+server.dev = server_dev;
+
+const preset:WPACK_INTERNAL.Preset = config_main as WPACK_INTERNAL.Preset;
+preset.server = server;
+preset.client = client;
 
 export 
 	{ client_dev
 	, client_prod
 	, server_dev
 	, server_prod
+	, client
+	, server
 	}
-
-export const client = 
-	{ dev:client_dev
-	, prod:client_prod
-	}
-
-export const server = 
-	{ dev:server_dev
-	, prod:server_prod
-	}
-
-function preset(O?:WPACK.ENV,configFile?:string,isProd:boolean=false,isServer:boolean=false){
-	const configType = (isServer ? server : client);
-	const configMaker = isProd ? configType.prod : configType.dev;
-	const config = configMaker(O,configFile);
-	return config;
-}
-
-
-const builds = extend
-	( preset
-	, { client, server}
-	);
 
 export default preset;

@@ -3,7 +3,6 @@ import buildPlugins,{buildPluginsRaw} from './plugins';
 import buildLoaders from './loaders';
 import buildEntry from './entry';
 import buildOutput from './output';
-import buildStats from './stats';
 import buildExternals from './utils/externals';
 import buildPostcss,{buildPostcssRaw} from './postcss';
 import buildDevServer from './devServer';
@@ -11,11 +10,13 @@ import buildNode from './node';
 import buildResolve from './resolve';
 import stringify from '../utils/stringify';
 
+export function buildConfigPrep( opts:WPACK.CONFIG, raw:boolean, requires?:any):WPACK_INTERNAL.ConfigPrepRaw;
+export function buildConfigPrep( opts:WPACK.CONFIG):WPACK_INTERNAL.ConfigPrepNotRaw;
 export function buildConfigPrep
-	( opts:WPACK.OPTS
+	( opts:WPACK.CONFIG
 	, raw:boolean=false
 	, requires?:any
-	)
+	):any
 	{
 		if(raw && !requires){
 			throw new Error('you need to provide a `requires` object if you\'re requestion `raw`');
@@ -43,15 +44,13 @@ export function buildConfigPrep
 		const output = buildOutput(opts);
 		const plugins = raw ? buildPluginsRaw(requires,opts,extensions) : buildPlugins(opts,extensions);
 		const resolve = buildResolve(extensions);
-		const stats = buildStats();
 		const devServer = isDevServer && buildDevServer(opts.contentBase,opts.hotPort,opts.devServer); 
-		const env = isProd ? 'production' : 'development';
 		const devtool = opts.devtool || 'source-map';
 		const postcss = raw ? buildPostcssRaw(requires,types) : buildPostcss(types);
 		const debug = opts.debug;
 		const externals = buildExternals(`${outputContext}/node_modules`);
 		const node = buildNode();
-		const target = isServer ? 'node' : 'web';
+		const target:WEBPACK.Target = isServer ? 'node' : 'web';
 
 		return (
 			{ isServer
@@ -59,13 +58,11 @@ export function buildConfigPrep
 			, entry
 			, externals
 			, output
-			, stats
 			, resolve
 			, module:modules
 			, plugins
 			, postcss
 			, devServer
-			, env
 			, devtool
 			, node
 			, debug
@@ -75,7 +72,7 @@ export function buildConfigPrep
 	}
 
 export function buildConfigRaw
-	( opts:WPACK.OPTS
+	( opts:WPACK.CONFIG
 	):string
 	{
 		const requires = {};
@@ -91,8 +88,11 @@ export function buildConfigRaw
 		return (requires_str+'\n\n'+config_str);
 	}
 
+
+export function buildConfig(opts:WPACK.CONFIG,raw:boolean,requires:any):any;
+export function buildConfig(opts:WPACK.CONFIG):WEBPACK.CONFIG;
 export function buildConfig
-	( opts:WPACK.OPTS
+	( opts:WPACK.CONFIG
 	, raw:boolean=false
 	, requires?:any
 	):any
@@ -104,13 +104,11 @@ export function buildConfig
 			, entry
 			, externals
 			, output
-			, stats
 			, resolve
 			, module:modules
 			, plugins
 			, postcss
 			, devServer
-			, env
 			, devtool
 			, node
 			, debug
@@ -119,21 +117,20 @@ export function buildConfig
 				, raw
 				, requires
 				);
-
+		const context = '';
 		if(isServer){
 
 			return (
-				{ target
+				{ context
+				, target
 				, entry
 				, externals
 				, output
-				, stats
 				, resolve
 				, module:modules
 				, plugins
 				, postcss
 				, devServer
-				, env
 				, devtool
 				, node
 				, debug
@@ -145,22 +142,26 @@ export function buildConfig
 			{ target
 			, entry
 			, output
-			, stats
 			, resolve
 			, module:modules
 			, plugins
 			, postcss
 			, devServer
-			, env
 			, devtool
 			, debug
 			}
 		);
 	}
 
-export default function config(opts:WPACK.OPTS,raw:boolean=false){
-	return raw ?
-		buildConfigRaw(opts) : 
-		buildConfig(opts)
-	;
-} 
+export default function config(opts:WPACK.CONFIG,raw:boolean):string;
+export default function config(opts:WPACK.CONFIG):WEBPACK.CONFIG;
+export default function config
+	( opts:WPACK.CONFIG
+	, raw:boolean=false
+	)
+	{
+		return raw ?
+			buildConfigRaw(opts) : 
+			buildConfig(opts)
+		;
+	} 

@@ -1,4 +1,21 @@
-export default function buildGlobs(isProd:boolean,isServer:boolean,files:string[][],globals:any){
+/**
+ * Creates a `globals` object to be used in a webpack config.
+ * 
+ *  
+ * @param {boolean} isProd `true` if building a production build
+ * @param {boolean} isServer `true` if building a server build
+ * @param {string[][]} files an array of [fileName,filePath]
+ * @param {*} globals an object of globals
+ * @returns an object with each key uppercased and surrounded with '__':
+ * ```
+ * { ___DEV___:"true"
+ * , ___CLIENT___:"true"
+ * , ___ENV___:"\"development\""
+ * //...etc
+ * }
+ * ```
+ */
+export default function buildGlobs(isProd:boolean,isServer:boolean,globals?:any,files?:string[][]){
 
 	const isDev = !isProd;
 	const isClient = !isServer;
@@ -11,7 +28,7 @@ export default function buildGlobs(isProd:boolean,isServer:boolean,files:string[
 
 	( globals ? 
 		Object.keys(globals).map
-			( name=>[ name.toUpperCase() , globals[name] ] ) :
+			( name=>[ name , globals[name] ] ) :
 		[]
 	)
 	.concat
@@ -24,9 +41,10 @@ export default function buildGlobs(isProd:boolean,isServer:boolean,files:string[
 			, [ 'DEV_SERVER',isDevServer ]
 			]
 		)
-	.concat(files)
+	.concat(files||[])
+	.filter(Boolean)
 	.forEach(function([name,value]){
-		GLOBS[`__${name}__`] = JSON.stringify(value);
+		GLOBS[`__${name.toUpperCase()}__`] = JSON.stringify(value);
 	})
 
 	return GLOBS;

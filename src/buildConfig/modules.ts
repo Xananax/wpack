@@ -5,22 +5,26 @@ const preLoaders =
 		}
 	] 
 
-export default function modules(config:WPACK.OPTS,loaders:WPACK_INTERNAL.Loader[]):any{
+export default function modules
+	( config:WPACK.CONFIG
+	, loaders:WPACK_INTERNAL.Loader[]
+	):WEBPACK.Module
+	{
 
-	const {isProd,isDev} = config;
+		const {isProd,isDev} = config;
 
-	if(isDev){
-		return (
-			{ noParse:/\.min\.js$/
-			, loaders
-			}
-		)
-	}else{
-		return (
-			{ preLoaders
-			, loaders
-			}
-		)
+		if(isDev){
+			return (
+				{ noParse:/\.min\.js$/
+				, loaders
+				}
+			)
+		}else{
+			return (
+				{ preLoaders
+				, loaders
+				}
+			)
+		}
+
 	}
-
-}
